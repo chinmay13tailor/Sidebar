@@ -5,7 +5,6 @@
   <title>Dashboard with Sidebar & Auto JWT</title>
   <style>
     body { margin: 0; font-family: Arial, sans-serif; display: flex; height: 100vh; }
-    /* --- Sidebar --- */
     .sidebar {
       width: 60px;
       background: #f8f9fa;
@@ -20,9 +19,11 @@
       margin: 10px 0;
       cursor: pointer;
       color: #777;
+      font-size: 1.5rem;
+      text-align: center;
+      line-height: 40px;
     }
     .sidebar .icon.active { color: #007bff; }
-    /* --- Main Content --- */
     .main {
       flex: 1;
       display: flex;
@@ -35,10 +36,10 @@
 <body>
 
   <div class="sidebar">
-    <div class="icon" id="nav-home">🏠</div>
-    <div class="icon" id="nav-machine">🛠️</div>
-    <div class="icon" id="nav-live">📡</div>
-    <div class="icon" id="nav-alerts">🚨</div>
+    <div class="icon" id="nav-home" title="Home">🏠</div>
+    <div class="icon" id="nav-machine" title="Machines">🛠️</div>
+    <div class="icon" id="nav-live" title="Live Monitoring">📡</div>
+    <div class="icon" id="nav-alerts" title="Alarms">🚨</div>
   </div>
 
   <div class="main">
@@ -46,20 +47,17 @@
       <h2 id="page-title">Home</h2>
     </div>
     <div class="content" id="page-content">
-      <!-- Dynamic content for each page goes here -->
       <p>Welcome! Logging in and preparing...</p>
     </div>
   </div>
 
   <script>
-    // --- CONFIGURE THESE ---
     const baseUrl = "https://thingsboard.cloud/api";
-    const username = "jatin.ajmera@pima.in";  // Replace
-    const password = "Plantwiz@2025";            // Replace
-    const masterDeviceId = "03990870-4108-11f0-9143-ed31251bb06c";
+    const dashboardId = "YOUR_DASHBOARD_ID"; // 🔁 Replace with actual Dashboard ID
+    const username = "jatin.ajmera@pima.in";  // ✅ Update if needed
+    const password = "Plantwiz@2025";         // ✅ Update if needed
     let jwt = null;
 
-    // --- LOGIN AND INITIALIZE DASHBOARD ---
     async function loginAndInit() {
       try {
         const resp = await fetch(`${baseUrl}/auth/login`, {
@@ -78,7 +76,6 @@
       }
     }
 
-    // --- SIDEBAR NAVIGATION ---
     function initSidebar() {
       const pages = {
         home: showHome,
@@ -94,13 +91,13 @@
       });
       selectNav('home');
     }
+
     function selectNav(selected) {
       document.querySelectorAll('.sidebar .icon').forEach(el => {
         el.classList.toggle('active', el.id === `nav-${selected}`);
       });
     }
 
-    // --- PAGE FUNCTIONS ---
     function showHome() {
       document.getElementById('page-title').innerText = "Home";
       document.getElementById('page-content').innerHTML = `
@@ -110,23 +107,18 @@
 
     function showMachinePage() {
       document.getElementById('page-title').innerText = "Machines";
-      document.getElementById('page-content').innerHTML = `
-        <p>Machine selection & telemetry will go here.</p>
-      `;
-      // You will replace this placeholder with your previously built module
+      window.location.href = `https://thingsboard.cloud/dashboards/${dashboardId}?state=machines&token=${jwt}`;
     }
 
     function showLivePage() {
       document.getElementById('page-title').innerText = "Live Monitoring";
-      document.getElementById('page-content').innerHTML = `
-        <p>Live data fetching UI goes here.</p>
-      `;
+      window.location.href = `https://thingsboard.cloud/dashboards/${dashboardId}?state=live_monitoring&token=${jwt}`;
     }
 
     function showAlertsPage() {
       document.getElementById('page-title').innerText = "Alarms & Alerts";
       document.getElementById('page-content').innerHTML = `
-        <p>Alarm status and levels UI goes here.</p>
+        <p>Alarm dashboard under construction or managed separately.</p>
       `;
     }
 
