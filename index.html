@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard with Sidebar & Auto JWT</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; display: flex; height: 100vh; }
+    /* --- Sidebar --- */
+    .sidebar {
+      width: 60px;
+      background: #f8f9fa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-right: 1px solid #ddd;
+      padding-top: 1rem;
+    }
+    .sidebar .icon {
+      width: 40px; height: 40px;
+      margin: 10px 0;
+      cursor: pointer;
+      color: #777;
+    }
+    .sidebar .icon.active { color: #007bff; }
+    /* --- Main Content --- */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .header { padding: 1rem; background: #fff; border-bottom: 1px solid #ddd; }
+    .content { flex: 1; overflow: auto; padding: 1rem; }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="icon" id="nav-home">🏠</div>
+    <div class="icon" id="nav-machine">🛠️</div>
+    <div class="icon" id="nav-live">📡</div>
+    <div class="icon" id="nav-alerts">🚨</div>
+  </div>
+
+  <div class="main">
+    <div class="header">
+      <h2 id="page-title">Home</h2>
+    </div>
+    <div class="content" id="page-content">
+      <!-- Dynamic content for each page goes here -->
+      <p>Welcome! Logging in and preparing...</p>
+    </div>
+  </div>
+
+  <script>
+    // --- CONFIGURE THESE ---
+    const baseUrl = "https://thingsboard.cloud/api";
+    const username = "YOUR_USERNAME@EMAIL.COM";  // Replace
+    const password = "YOUR_PASSWORD";            // Replace
+    const masterDeviceId = "03990870-4108-11f0-9143-ed31251bb06c";
+    let jwt = null;
+
+    // --- LOGIN AND INITIALIZE DASHBOARD ---
+    async function loginAndInit() {
+      try {
+        const resp = await fetch(`${baseUrl}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+        if (!resp.ok) throw new Error("Login failed");
+        jwt = (await resp.json()).token;
+        console.log("✅ JWT fetched:", jwt);
+        initSidebar();
+        showHome();
+      } catch (e) {
+        console.error(e);
+        document.getElementById('page-content').innerText = "❌ Failed to login.";
+      }
+    }
+
+    // --- SIDEBAR NAVIGATION ---
+    function initSidebar() {
+      const pages = {
+        home: showHome,
+        machine: showMachinePage,
+        live: showLivePage,
+        alerts: showAlertsPage
+      };
+      Object.keys(pages).forEach(key => {
+        document.getElementById(`nav-${key}`).onclick = () => {
+          selectNav(key);
+          pages[key]();
+        };
+      });
+      selectNav('home');
+    }
+    function selectNav(selected) {
+      document.querySelectorAll('.sidebar .icon').forEach(el => {
+        el.classList.toggle('active', el.id === `nav-${selected}`);
+      });
+    }
+
+    // --- PAGE FUNCTIONS ---
+    function showHome() {
+      document.getElementById('page-title').innerText = "Home";
+      document.getElementById('page-content').innerHTML = `
+        <p>Welcome to your dashboard!</p>
+      `;
+    }
+
+    function showMachinePage() {
+      document.getElementById('page-title').innerText = "Machines";
+      document.getElementById('page-content').innerHTML = `
+        <p>Machine selection & telemetry will go here.</p>
+      `;
+      // You will replace this placeholder with your previously built module
+    }
+
+    function showLivePage() {
+      document.getElementById('page-title').innerText = "Live Monitoring";
+      document.getElementById('page-content').innerHTML = `
+        <p>Live data fetching UI goes here.</p>
+      `;
+    }
+
+    function showAlertsPage() {
+      document.getElementById('page-title').innerText = "Alarms & Alerts";
+      document.getElementById('page-content').innerHTML = `
+        <p>Alarm status and levels UI goes here.</p>
+      `;
+    }
+
+    window.onload = loginAndInit;
+  </script>
+
+</body>
+</html>
